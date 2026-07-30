@@ -17,7 +17,7 @@ const config: Config = {
           "cyan-50": "#F1F5F9",
           blue: "#334155",
           "blue-dark": "#1E293B",
-          ink: "#0F172A",
+          ink: "#1A1C3B",
         },
       },
       fontFamily: {
