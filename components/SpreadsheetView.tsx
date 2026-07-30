@@ -19,18 +19,18 @@ const ROW_NUM_WIDTH = 44;
 
 const BG_PALETTE = [
   { label: "Blanco", value: "" },
-  { label: "Rojo", value: "#EF4444" },
-  { label: "Naranja", value: "#F97316" },
-  { label: "Amarillo", value: "#FACC15" },
-  { label: "Verde", value: "#22C55E" },
-  { label: "Teal", value: "#14B8A6" },
-  { label: "Cian", value: "#06B6D4" },
-  { label: "Azul", value: "#2563EB" },
-  { label: "Índigo", value: "#4F46E5" },
-  { label: "Morado", value: "#9333EA" },
-  { label: "Rosa", value: "#EC4899" },
-  { label: "Gris", value: "#6B7280" },
-  { label: "Negro", value: "#111827" },
+  { label: "Rojo", value: "#FECACA" },
+  { label: "Naranja", value: "#FED7AA" },
+  { label: "Amarillo", value: "#FEF08A" },
+  { label: "Verde", value: "#BBF7D0" },
+  { label: "Teal", value: "#99F6E4" },
+  { label: "Cian", value: "#A5F3FC" },
+  { label: "Azul", value: "#BFDBFE" },
+  { label: "Índigo", value: "#C7D2FE" },
+  { label: "Morado", value: "#E9D5FF" },
+  { label: "Rosa", value: "#FBCFE8" },
+  { label: "Gris", value: "#E5E7EB" },
+  { label: "Negro", value: "#94A3B8" },
 ];
 
 const TEXT_PALETTE = [

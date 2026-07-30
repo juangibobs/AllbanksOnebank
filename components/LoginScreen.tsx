@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LogIn, Mail, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-import AOLogo from "./AOLogo";
+import AOWordmark from "./AOWordmark";
 
 export default function LoginScreen() {
   const { login, sendMagicLink } = useAuth();
@@ -33,17 +33,14 @@ export default function LoginScreen() {
     <div className="min-h-screen grid md:grid-cols-2">
       {/* Bloque izquierdo — con logo */}
       <div className="hidden md:flex items-center justify-center bg-brand-ink p-12">
-        <div className="text-center">
-          <AOLogo className="w-32 h-32 mx-auto rounded-3xl shadow-2xl" />
-          <p className="mt-6 text-xl font-bold text-white">Allbanks&amp;Onebank</p>
-        </div>
+        <AOWordmark className="w-full max-w-md" />
       </div>
 
       {/* Bloque derecho — formulario */}
       <div className="flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-sm">
-          <div className="mb-8 md:hidden flex justify-center">
-            <AOLogo className="h-20 w-20 rounded-2xl shadow-lg" />
+          <div className="mb-8 md:hidden flex justify-center rounded-2xl bg-brand-ink px-6 py-5 shadow-lg">
+            <AOWordmark className="w-full max-w-[280px]" />
           </div>
 
           {isSupabaseConfigured && sent ? (
