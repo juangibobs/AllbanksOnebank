@@ -1,0 +1,36 @@
+{
+  "name": "allbanks-onebank",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Allbanks&Onebank — portal documental interno (fichas de cuentas, hoja de cálculo editable, noticias y librerías de documentos).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.111.0",
+    "@vercel/analytics": "^2.0.1",
+    "docx-preview": "^0.3.7",
+    "lucide-react": "^0.417.0",
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "sonner": "^1.5.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.35",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5"
+  }
+}
