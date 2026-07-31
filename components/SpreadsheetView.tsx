@@ -348,7 +348,7 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
         </div>
       )}
 
-      <div className="overflow-auto rounded-xl border border-brand-blue/15 bg-white">
+      <div className="overflow-auto rounded-xl border border-brand-blue/15 bg-white max-h-[75vh]">
         <table className="border-collapse" style={{ tableLayout: "fixed", width: tableWidth }}>
           <colgroup>
             <col style={{ width: ROW_NUM_WIDTH }} />
