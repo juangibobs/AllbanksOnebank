@@ -42,6 +42,10 @@ export interface SheetDoc {
   cells: Sheet;
   colWidths: number[];
   rowHeights: number[];
+  /** Índices de fila marcados como fijos (quedan visibles al hacer scroll vertical). */
+  stickyRows: number[];
+  /** Índices de columna marcados como fijos (quedan visibles al hacer scroll horizontal). */
+  stickyCols: number[];
 }
 
 /** Una noticia del feed de Noticias de una cuenta. */

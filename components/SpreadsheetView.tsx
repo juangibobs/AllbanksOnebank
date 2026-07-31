@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Minus, Upload, Loader2 } from "lucide-react";
+import { Plus, Minus, Upload, Loader2, Pin, PinOff } from "lucide-react";
 import { toast } from "sonner";
 import type { Cell, SheetDoc } from "@/lib/types";
 import {
   emptyCell,
   sheetCols,
   normalizeSizes,
+  removeStickyIndex,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
   MIN_COL_WIDTH,
@@ -82,6 +83,43 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
     () => normalizeSizes(doc.rowHeights, cells.length, DEFAULT_ROW_HEIGHT),
     [doc.rowHeights, cells.length],
   );
+  const stickyRows = useMemo(() => doc.stickyRows ?? [], [doc.stickyRows]);
+  const stickyCols = useMemo(() => doc.stickyCols ?? [], [doc.stickyCols]);
+  const stickyRowSet = useMemo(() => new Set(stickyRows), [stickyRows]);
+  const stickyColSet = useMemo(() => new Set(stickyCols), [stickyCols]);
+
+  // Desplazamiento acumulado (top/left en px) de cada fila/columna fija, para apilarlas sin solaparse.
+  const rowTop = useMemo(() => {
+    const m = new Map<number, number>();
+    let acc = 0;
+    for (const r of [...stickyRows].sort((a, b) => a - b)) {
+      m.set(r, acc);
+      acc += rowHeights[r] ?? DEFAULT_ROW_HEIGHT;
+    }
+    return m;
+  }, [stickyRows, rowHeights]);
+  const colLeft = useMemo(() => {
+    const m = new Map<number, number>();
+    let acc = ROW_NUM_WIDTH;
+    for (const c of [...stickyCols].sort((a, b) => a - b)) {
+      m.set(c, acc);
+      acc += colWidths[c] ?? DEFAULT_COL_WIDTH;
+    }
+    return m;
+  }, [stickyCols, colWidths]);
+
+  const toggleStickyRow = (r: number) => {
+    onChange({
+      ...doc,
+      stickyRows: stickyRowSet.has(r) ? stickyRows.filter((x) => x !== r) : [...stickyRows, r],
+    });
+  };
+  const toggleStickyCol = (c: number) => {
+    onChange({
+      ...doc,
+      stickyCols: stickyColSet.has(c) ? stickyCols.filter((x) => x !== c) : [...stickyCols, c],
+    });
+  };
 
   // ---- Redimensionado (arrastrar bordes) ----
   const resizing = useRef<Resize | null>(null);
@@ -191,6 +229,7 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
       ...doc,
       cells: cells.filter((_, ri) => ri !== anchor.r),
       rowHeights: rowHeights.filter((_, ri) => ri !== anchor.r),
+      stickyRows: removeStickyIndex(stickyRows, anchor.r),
     });
     const r = Math.max(1, anchor.r - 1);
     setAnchor({ r, c: anchor.c });
@@ -203,6 +242,7 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
       ...doc,
       cells: cells.map((row) => row.filter((_, ci) => ci !== anchor.c)),
       colWidths: colWidths.filter((_, ci) => ci !== anchor.c),
+      stickyCols: removeStickyIndex(stickyCols, anchor.c),
     });
     const c = Math.max(0, anchor.c - 1);
     setAnchor({ r: anchor.r, c });
@@ -303,6 +343,7 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
 
           <span className="text-[11px] text-brand-blue/60">
             Selección múltiple: Mayús+clic (rango) · Ctrl/⌘+clic (varias sueltas), y aplica un color a todas. Arrastra los bordes para redimensionar.
+            Pulsa el icono de chincheta junto al número de fila o la letra de columna para fijarla (sticky) al hacer scroll, o vuelve a pulsarlo para quitarla.
           </span>
         </div>
       )}
@@ -317,34 +358,66 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
           </colgroup>
           <thead>
             <tr>
-              <th className="bg-brand-blue text-white text-xs font-semibold border border-brand-blue sticky left-0 z-10">
+              <th className="bg-brand-blue text-white text-xs font-semibold border border-brand-blue sticky left-0 z-20">
                 #
               </th>
-              {Array.from({ length: cols }).map((_, c) => (
-                <th
-                  key={c}
-                  className="relative bg-brand-blue text-white text-xs font-semibold px-3 py-2 border border-brand-blue text-left select-none"
-                >
-                  {colLetter(c)}
-                  {editMode && (
-                    <span
-                      onMouseDown={startResize("col", c)}
-                      title="Arrastrar para ajustar el ancho"
-                      className="absolute top-0 right-0 h-full w-2 cursor-col-resize hover:bg-white/40"
-                    />
-                  )}
-                </th>
-              ))}
+              {Array.from({ length: cols }).map((_, c) => {
+                const colSticky = stickyColSet.has(c);
+                return (
+                  <th
+                    key={c}
+                    className={`relative bg-brand-blue text-white text-xs font-semibold px-3 py-2 border border-brand-blue text-left select-none ${
+                      colSticky ? "sticky z-[15]" : ""
+                    }`}
+                    style={colSticky ? { left: colLeft.get(c) } : undefined}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {colLetter(c)}
+                      {editMode && (
+                        <button
+                          type="button"
+                          onClick={() => toggleStickyCol(c)}
+                          title={colSticky ? "Quitar columna fija" : "Fijar columna (sticky)"}
+                          className="opacity-70 hover:opacity-100"
+                        >
+                          {colSticky ? <Pin className="w-3 h-3" /> : <PinOff className="w-3 h-3" />}
+                        </button>
+                      )}
+                    </span>
+                    {editMode && (
+                      <span
+                        onMouseDown={startResize("col", c)}
+                        title="Arrastrar para ajustar el ancho"
+                        className="absolute top-0 right-0 h-full w-2 cursor-col-resize hover:bg-white/40"
+                      />
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {cells.map((row, r) => (
+            {cells.map((row, r) => {
+              const rowSticky = stickyRowSet.has(r);
+              return (
               <tr key={r} style={{ height: rowHeights[r] }}>
                 <td
-                  className="relative bg-brand-cyan-50 text-brand-blue/60 text-xs font-medium px-2 border border-brand-blue/15 text-center sticky left-0 z-10 select-none"
-                  style={{ height: rowHeights[r] }}
+                  className="relative bg-brand-cyan-50 text-brand-blue/60 text-xs font-medium px-2 border border-brand-blue/15 text-center sticky left-0 z-20 select-none"
+                  style={{ height: rowHeights[r], top: rowSticky ? rowTop.get(r) : undefined }}
                 >
-                  {r + 1}
+                  <span className="inline-flex items-center gap-1">
+                    {r + 1}
+                    {editMode && (
+                      <button
+                        type="button"
+                        onClick={() => toggleStickyRow(r)}
+                        title={rowSticky ? "Quitar fila fija" : "Fijar fila (sticky)"}
+                        className="opacity-70 hover:opacity-100"
+                      >
+                        {rowSticky ? <Pin className="w-3 h-3" /> : <PinOff className="w-3 h-3" />}
+                      </button>
+                    )}
+                  </span>
                   {editMode && (
                     <span
                       onMouseDown={startResize("row", r)}
@@ -356,14 +429,23 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
                 {Array.from({ length: cols }).map((_, c) => {
                   const cell = row[c] ?? emptyCell();
                   const isSel = editMode && selected.has(key(r, c));
+                  const colSticky = stickyColSet.has(c);
+                  const cellSticky = colSticky || rowSticky;
+                  const cellStyle: React.CSSProperties = {
+                    background: cell.bg || (cellSticky ? "#ffffff" : undefined),
+                    height: rowHeights[r],
+                  };
+                  if (colSticky) cellStyle.left = colLeft.get(c);
+                  if (rowSticky) cellStyle.top = rowTop.get(r);
+                  const zClass = colSticky && rowSticky ? "z-[15]" : cellSticky ? "z-[6]" : "";
                   return (
                     <td
                       key={c}
                       onMouseDown={(e) => editMode && selectCell(r, c, e)}
                       className={`border border-brand-blue/15 align-top p-0 ${
                         isSel ? "ring-2 ring-inset ring-brand-cyan" : ""
-                      }`}
-                      style={{ background: cell.bg || undefined, height: rowHeights[r] }}
+                      } ${cellSticky ? `sticky ${zClass}` : ""}`}
+                      style={cellStyle}
                     >
                       {editMode ? (
                         <input
@@ -388,7 +470,8 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
                   );
                 })}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -26,13 +26,22 @@ export function makeDoc(
   cells: Sheet,
   colWidths?: number[],
   rowHeights?: number[],
+  stickyRows?: number[],
+  stickyCols?: number[],
 ): SheetDoc {
   const cols = sheetCols(cells);
   return {
     cells,
     colWidths: normalizeSizes(colWidths, cols, DEFAULT_COL_WIDTH),
     rowHeights: normalizeSizes(rowHeights, cells.length, DEFAULT_ROW_HEIGHT),
+    stickyRows: (stickyRows ?? []).filter((r) => r >= 0 && r < cells.length),
+    stickyCols: (stickyCols ?? []).filter((c) => c >= 0 && c < cols),
   };
+}
+
+/** Tras eliminar la fila/columna `removed`, quita ese índice de una lista de índices fijos y desplaza los mayores. */
+export function removeStickyIndex(indices: number[], removed: number): number[] {
+  return indices.filter((i) => i !== removed).map((i) => (i > removed ? i - 1 : i));
 }
 
 /** Ajusta un array de tamaños a la longitud deseada, rellenando con el valor por defecto. */

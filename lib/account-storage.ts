@@ -29,8 +29,14 @@ export async function loadSheet(account: string, tab: string): Promise<SheetDoc>
       .eq("id", rowId(account, tab))
       .maybeSingle();
     if (!error && data?.sheet) {
-      const s = data.sheet as { cells: Sheet; colWidths?: number[]; rowHeights?: number[] };
-      return makeDoc(s.cells, s.colWidths, s.rowHeights);
+      const s = data.sheet as {
+        cells: Sheet;
+        colWidths?: number[];
+        rowHeights?: number[];
+        stickyRows?: number[];
+        stickyCols?: number[];
+      };
+      return makeDoc(s.cells, s.colWidths, s.rowHeights, s.stickyRows, s.stickyCols);
     }
     return emptyDoc();
   }
@@ -39,7 +45,7 @@ export async function loadSheet(account: string, tab: string): Promise<SheetDoc>
       const raw = localStorage.getItem(LS_SHEET(account, tab));
       if (raw) {
         const parsed = JSON.parse(raw);
-        return makeDoc(parsed.cells as Sheet, parsed.colWidths, parsed.rowHeights);
+        return makeDoc(parsed.cells as Sheet, parsed.colWidths, parsed.rowHeights, parsed.stickyRows, parsed.stickyCols);
       }
     } catch {
       /* ignore */
