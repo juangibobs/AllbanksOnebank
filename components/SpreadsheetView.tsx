@@ -402,7 +402,9 @@ export default function SpreadsheetView({ doc, editMode, onChange }: Props) {
               return (
               <tr key={r} style={{ height: rowHeights[r] }}>
                 <td
-                  className="relative bg-brand-cyan-50 text-brand-blue/60 text-xs font-medium px-2 border border-brand-blue/15 text-center sticky left-0 z-20 select-none"
+                  className={`relative bg-brand-cyan-50 text-brand-blue/60 text-xs font-medium px-2 border border-brand-blue/15 text-center sticky left-0 select-none ${
+                    rowSticky ? "z-30" : "z-20"
+                  }`}
                   style={{ height: rowHeights[r], top: rowSticky ? rowTop.get(r) : undefined }}
                 >
                   <span className="inline-flex items-center gap-1">
