@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -19,7 +19,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
 function PdfPreview({ file }: { file: AccountFile }) {
   const [numPages, setNumPages] = useState(0);
-  const [width, setWidth] = useState(700);
+  const [baseWidth, setBaseWidth] = useState(700);
+  const [zoom, setZoom] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,32 +28,71 @@ function PdfPreview({ file }: { file: AccountFile }) {
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width;
-      if (w) setWidth(Math.max(280, Math.min(900, Math.floor(w - 16))));
+      if (w) setBaseWidth(Math.max(280, Math.min(900, Math.floor(w - 24))));
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  const zoomIn = () => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)));
+  const zoomOut = () => setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)));
+
   return (
-    <div ref={containerRef} className="max-h-[600px] overflow-auto bg-slate-100 flex flex-col items-center gap-3 py-4">
-      <Document
-        file={file.url}
-        onLoadSuccess={(pdf) => setNumPages(pdf.numPages)}
-        loading={
-          <div className="flex items-center gap-2 text-brand-blue py-10 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin" /> Cargando PDF…
-          </div>
-        }
-        error={
-          <div className="text-red-600 text-sm py-10 px-4 text-center">
-            No se pudo cargar el PDF. Usa <span className="font-medium">Descargar</span> para abrirlo.
-          </div>
-        }
-      >
-        {Array.from({ length: numPages }, (_, i) => (
-          <Page key={i} pageNumber={i + 1} width={width} className="shadow mb-3" />
-        ))}
-      </Document>
+    <div>
+      {/* Controles propios (el visor nativo del navegador ya no interviene) */}
+      <div className="flex items-center justify-between gap-3 px-4 py-2 bg-slate-800 text-white text-xs">
+        <span>{numPages > 0 ? `${numPages} ${numPages === 1 ? "página" : "páginas"}` : "—"}</span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={zoomOut}
+            title="Alejar"
+            className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white/15 transition"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="w-11 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
+          <button
+            onClick={zoomIn}
+            title="Acercar"
+            className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white/15 transition"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setZoom(1)}
+            title="Restablecer zoom"
+            className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white/15 transition"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div ref={containerRef} className="max-h-[600px] overflow-auto bg-slate-100 flex flex-col items-center py-4">
+        <Document
+          file={file.url}
+          onLoadSuccess={(pdf) => setNumPages(pdf.numPages)}
+          loading={
+            <div className="flex items-center gap-2 text-brand-blue py-10 text-sm">
+              <Loader2 className="w-4 h-4 animate-spin" /> Cargando PDF…
+            </div>
+          }
+          error={
+            <div className="text-red-600 text-sm py-10 px-4 text-center">
+              No se pudo cargar el PDF. Usa <span className="font-medium">Descargar</span> para abrirlo.
+            </div>
+          }
+        >
+          {Array.from({ length: numPages }, (_, i) => (
+            <Page
+              key={i}
+              pageNumber={i + 1}
+              width={Math.round(baseWidth * zoom)}
+              className="shadow mb-4"
+            />
+          ))}
+        </Document>
+      </div>
     </div>
   );
 }
