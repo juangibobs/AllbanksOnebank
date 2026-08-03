@@ -11,6 +11,7 @@ export const ACCOUNTS: Account[] = [
       { slug: "documentacion", label: "Documentación requerida", kind: "sheet" },
       { slug: "compromisos", label: "Compromisos", kind: "files" },
       { slug: "otros-documentos", label: "Otros documentos", kind: "files" },
+      { slug: "manuales", label: "Manuales", kind: "files" },
       { slug: "links", label: "Links relevantes", kind: "markdown" },
     ],
   },
@@ -27,6 +28,7 @@ export const ACCOUNTS: Account[] = [
       { slug: "otros-documentos", label: "Otros documentos", kind: "files" },
       { slug: "politicas-sabadell", label: "Políticas Sabadell", kind: "files" },
       { slug: "operaciones-ropo", label: "Operaciones ropo", kind: "files" },
+      { slug: "manuales", label: "Manuales", kind: "files" },
     ],
   },
 ];
