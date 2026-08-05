@@ -9,7 +9,7 @@ import { getSupabase } from "./supabase/client";
 
 export const FILES_BUCKET = "ao-files";
 
-export type FileKind = "image" | "docx" | "doc" | "pdf" | "pptx" | "other";
+export type FileKind = "image" | "docx" | "doc" | "pdf" | "pptx" | "xlsx" | "other";
 
 export interface AccountFile {
   name: string; // nombre mostrado (original)
@@ -27,6 +27,7 @@ export function fileKind(name: string): FileKind {
   if (n.endsWith(".doc")) return "doc";
   if (n.endsWith(".pdf")) return "pdf";
   if (n.endsWith(".pptx")) return "pptx";
+  if (n.endsWith(".xlsx") || n.endsWith(".xls")) return "xlsx";
   return "other";
 }
 

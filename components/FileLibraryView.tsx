@@ -65,7 +65,9 @@ export default function FileLibraryView({ accountSlug, tabSlug, label, canManage
       <header className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-bold text-brand-ink">{label}</h2>
-          <p className="text-sm text-slate-500 mt-1">PDF, Word, imágenes y PPTX — ya visibles, sin tener que abrirlos.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            PDF, Word, PowerPoint, Excel e imágenes — ya visibles, sin tener que abrirlos.
+          </p>
         </div>
         {canManage && (
           <>
@@ -81,7 +83,7 @@ export default function FileLibraryView({ accountSlug, tabSlug, label, canManage
               ref={inputRef}
               type="file"
               multiple
-              accept=".doc,.docx,.pdf,.ppt,.pptx,image/*"
+              accept=".doc,.docx,.pdf,.ppt,.pptx,.xls,.xlsx,image/*"
               className="hidden"
               onChange={onPick}
             />

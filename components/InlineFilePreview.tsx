@@ -101,7 +101,7 @@ function PdfPreview({ file }: { file: AccountFile }) {
  * Vista previa de un documento ya renderizada en la propia página (sin necesidad
  * de pulsar ningún botón para "abrirlo") — PDF se renderiza con pdf.js (propio, no
  * depende del visor del navegador); imagen usa <img>; .docx se renderiza con
- * docx-preview; .pptx usa el visor público de Office Online.
+ * docx-preview; .pptx y .xlsx usan el visor público de Office Online.
  */
 export default function InlineFilePreview({ file }: { file: AccountFile }) {
   const [loading, setLoading] = useState(file.kind === "docx");
@@ -148,7 +148,8 @@ export default function InlineFilePreview({ file }: { file: AccountFile }) {
     return <PdfPreview file={file} />;
   }
 
-  if (file.kind === "pptx") {
+  // PowerPoint y Excel se muestran con el visor público de Office Online.
+  if (file.kind === "pptx" || file.kind === "xlsx") {
     return (
       <iframe
         src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(file.url)}`}
